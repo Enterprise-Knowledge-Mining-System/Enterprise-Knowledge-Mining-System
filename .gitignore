@@ -5,6 +5,9 @@ __pycache__/
 
 # C extensions
 *.so
+# Chroma DB
+chroma.sqlite3
+.chroma_db\
 
 # Distribution / packaging
 .Python
@@ -209,3 +212,5 @@ __marimo__/
 
 #Pdf files 
 pdfs/
+
+.idea/
