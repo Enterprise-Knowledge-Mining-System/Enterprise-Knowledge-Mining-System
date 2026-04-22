@@ -6,7 +6,10 @@ The Enterprise Knowledge Mining System is designed to help organizations extract
 
 ## Current implementation status
 
-The current notebook stores metadata and entity information with each chunk, but retrieval is currently driven only by embedding similarity. Metadata filtering and hybrid retrieval are possible future next steps, but not implemented yet.
+The current notebook stores metadata and entity information with each chunk. Retrieval is primarily driven by embedding similarity, but now includes:
+
+- **Hybrid reranking experiment**: Optionally reranks retrieved chunks based on entity overlap with the query (using `use_hybrid=True`). This is experimental and, so far, has not shown significant improvement over pure embedding similarity.
+- **Category filter**: A filter for primary category is implemented in the search pipeline, but is not yet tested (pending scaling to multiple papers with different categories).
 
 ### 1. Document ingestion
 
@@ -62,6 +65,8 @@ The current notebook stores metadata and entity information with each chunk, but
 - Top matching chunks are returned from ChromaDB.
 - A minimum similarity threshold is applied to filter weak matches.
 - Search results are formatted with academic metadata for inspection.
+- **Hybrid reranking**: Optionally, results can be reranked by combining cosine similarity with entity overlap (see `use_hybrid` parameter). This is experimental and currently does not provide significant improvement.
+- **Category filter**: Retrieval can be filtered by primary category (see `filter_category` parameter), but this feature is pending real-world testing with a multi-paper dataset.
 
 ### 8. RAG pipeline
 
@@ -76,15 +81,14 @@ The current notebook stores metadata and entity information with each chunk, but
 
 ### Next Steps:
 
-- refactor arXiv fetching to support batch paper retrieval
-- implement batch PDF downloading
-- convert pdf to markdown directly in chunk processing
-- refactor the notebook into reusable functions and separate modules
-  - move helper functions into dedicated files for ingestion, cleaning, processing, vector storage, and RAG etc
-- build process_pdf_to_chunks() as the main processing pipeline
-- scale from 1 paper to 10–20 papers first
-- tune chunk size, overlap, and top-k retrieval
-- add logging/status tracking for downloads and processing
-- metadata filtering during retrieval
-- hybrid retrieval using entity overlap or metadata boosts
-- deploy a UI only after multi-paper retrieval is stable; streamlit
+- Refactor arXiv fetching to support batch paper retrieval
+- Implement batch PDF downloading
+- Convert PDF to markdown directly in chunk processing
+- Refactor the notebook into reusable functions and separate modules
+  - Move helper functions into dedicated files for ingestion, cleaning, processing, vector storage, and RAG, etc.
+- Build `process_pdf_to_chunks()` as the main processing pipeline
+- Scale from 1 paper to 10–20 papers first then eventually 1k papers
+- Tune chunk size, overlap, and top-k retrieval (tok-k retrieval is handled by ChromaDB)
+- Add logging/status tracking for downloads and processing
+- Test and tune category filtering and hybrid reranking
+- Deploy a UI only after multi-paper retrieval is stable (e.g., Streamlit)
