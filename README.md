@@ -39,11 +39,18 @@ The current notebook stores metadata and entity information with each chunk. Ret
   - title
   - section
   - primary category
-  - category list
+  - categories list
   - authors
   - published date
+  - creation date
   - page number
+  - page count
+  - format
+  - page block index
+  - page chunk index
   - chunk index
+  - entities (cleaned, comma-separated)
+  - entity labels (comma-separated)
 - Chunk metadata is enriched with extracted entities and entity labels.
 
 ### 5. Entity extraction
