@@ -95,7 +95,7 @@ The current notebook stores metadata and entity information with each chunk. Ret
   - Move helper functions into dedicated files for ingestion, cleaning, processing, vector storage, and RAG, etc.
 - Build `process_pdf_to_chunks()` as the main processing pipeline
 - Scale from 1 paper to 10–20 papers first then eventually 1k papers
-- Tune chunk size, overlap, and top-k retrieval (tok-k retrieval is handled by ChromaDB)
+- Tune chunk size, overlap, and top-k retrieval (top-k retrieval is handled by ChromaDB)
 - Add logging/status tracking for downloads and processing
 - Test and tune category filtering and hybrid reranking
 - Deploy a UI only after multi-paper retrieval is stable (e.g., Streamlit)
