@@ -4,6 +4,7 @@
 
 The Enterprise Knowledge Mining System is designed to help organizations extract actionable insights from large collections of unstructured documents, focusing on research papers from arXiv. The system automates information extraction, builds a semantic search engine, and answers natural language questions using retrieval-augmented generation (RAG).
 
+### Made with Python 3.11.9
 ## Current implementation status
 
 The current notebook stores metadata and entity information with each chunk. Retrieval is primarily driven by embedding similarity, but now includes:
