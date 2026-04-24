@@ -214,3 +214,4 @@ __marimo__/
 pdfs/
 
 .idea/
+/chroma_db
