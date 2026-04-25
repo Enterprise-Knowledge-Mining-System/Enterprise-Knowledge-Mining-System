@@ -68,6 +68,7 @@ def preview_section_blocks(blocks, text_limit=500):
     for block in blocks:
         metadata = block.get("metadata", {})
         print(f"\nPAGE: {metadata.get('page_number')}")
+        print(f"TITLE: {metadata.get('title')}")
         print(f"SECTION: {block['section']}")
         print(f"TEXT SAMPLE: {block['text'][:text_limit]}")
 
