@@ -200,6 +200,13 @@ if repo_id and selected_archive and (restore_archive or not has_queryable_chunks
             st.error(f"Could not restore ChromaDB archive '{selected_archive}' from Hugging Face: {exc}")
             st.stop()
     get_pipeline.clear()
+    has_queryable_chunks = chroma_collection_has_chunks(chroma_path, collection_name)
+    if not has_queryable_chunks:
+        st.error(
+            f"Restored '{selected_archive}', but collection '{collection_name}' still has no chunks. "
+            "Check that the archive contains the same Chroma collection name."
+        )
+        st.stop()
     st.success("ChromaDB restored from Hugging Face.")
 
 pipeline = get_pipeline(chroma_path, collection_name, embedding_model, rag_model)

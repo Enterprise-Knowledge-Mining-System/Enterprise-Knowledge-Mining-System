@@ -57,10 +57,8 @@ def download_hf_file(repo_id: str, filename: str, token: str | None = None) -> P
     )
 
 
-def _archive_contains_chroma_file(path: Path) -> bool:
-    if path.is_file():
-        return path.name == "chroma.sqlite3"
-    return any(child.name == "chroma.sqlite3" for child in path.rglob("*"))
+def _is_chroma_root(path: Path) -> bool:
+    return path.is_dir() and (path / "chroma.sqlite3").is_file()
 
 
 def restore_chroma_archive(
@@ -86,8 +84,8 @@ def restore_chroma_archive(
     else:
         raise ValueError(f"Unsupported Chroma archive format: {archive_path.name}")
 
-    candidates = [path for path in staging_dir.rglob("*") if path.is_dir() and _archive_contains_chroma_file(path)]
-    if _archive_contains_chroma_file(staging_dir):
+    candidates = [path for path in staging_dir.rglob("*") if _is_chroma_root(path)]
+    if _is_chroma_root(staging_dir):
         source_dir = staging_dir
     elif candidates:
         source_dir = candidates[0]
