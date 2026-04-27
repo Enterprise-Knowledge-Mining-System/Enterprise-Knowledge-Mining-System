@@ -5,7 +5,7 @@ __pycache__/
 
 *temp
 *db
-checkpoint.json
+# checkpoint.json
 
 # C extensions
 *.so
