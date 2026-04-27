@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 from hf_index_loader import (
     download_hf_file,
@@ -16,10 +17,47 @@ from hf_index_loader import (
 from knowledge_pipeline import KnowledgeMiningPipeline, PipelineConfig, get_openai_api_key
 
 
+DEFAULT_CHROMA_ARCHIVE = "chroma_db.zip"
+
+
 st.set_page_config(
     page_title="Enterprise Knowledge Mining",
     layout="wide",
+    initial_sidebar_state="collapsed",
 )
+
+
+def collapse_sidebar_once() -> None:
+    if st.session_state.get("sidebar_auto_collapsed"):
+        return
+
+    st.session_state.sidebar_auto_collapsed = True
+    components.html(
+        """
+        <script>
+        const collapseSidebar = () => {
+            const doc = window.parent.document;
+            const collapseButton = doc.querySelector('[data-testid="stSidebarCollapseButton"]');
+            const sidebar = doc.querySelector('[data-testid="stSidebar"]');
+
+            if (!collapseButton || !sidebar) {
+                return;
+            }
+
+            const sidebarWidth = sidebar.getBoundingClientRect().width;
+            if (sidebarWidth > 0) {
+                collapseButton.click();
+            }
+        };
+
+        setTimeout(collapseSidebar, 100);
+        setTimeout(collapseSidebar, 500);
+        setTimeout(collapseSidebar, 1000);
+        </script>
+        """,
+        height=0,
+        width=0,
+    )
 
 
 def load_streamlit_secrets() -> None:
@@ -82,6 +120,7 @@ def chroma_db_exists(path: str) -> bool:
 
 
 load_streamlit_secrets()
+collapse_sidebar_once()
 
 st.title("Enterprise Knowledge Mining")
 
@@ -132,7 +171,7 @@ with st.sidebar:
     reset_before_ingest = st.toggle("Reset collection before ingest", value=False)
     ingest_pdfs = st.button("Ingest Hugging Face PDFs", disabled=not pdf_files or not get_openai_api_key())
 
-    configured_archive = os.getenv("HF_CHROMA_ARCHIVE", "")
+    configured_archive = os.getenv("HF_CHROMA_ARCHIVE", DEFAULT_CHROMA_ARCHIVE)
     archive_options = sorted(set(chroma_archives + ([configured_archive] if configured_archive else [])))
     selected_archive = st.selectbox("Chroma archive", archive_options) if archive_options else None
     restore_archive = st.button("Restore Chroma archive", disabled=not selected_archive)
@@ -142,7 +181,11 @@ with st.sidebar:
 
 if repo_id and selected_archive and (restore_archive or not chroma_db_exists(chroma_path)):
     with st.spinner("Restoring ChromaDB from Hugging Face..."):
-        restore_chroma_archive(repo_id, selected_archive, chroma_path, hf_token)
+        try:
+            restore_chroma_archive(repo_id, selected_archive, chroma_path, hf_token)
+        except Exception as exc:
+            st.error(f"Could not restore ChromaDB archive '{selected_archive}' from Hugging Face: {exc}")
+            st.stop()
     st.success("ChromaDB restored from Hugging Face.")
 
 pipeline = get_pipeline(chroma_path, collection_name, embedding_model, rag_model)
@@ -195,19 +238,24 @@ query = st.text_area(
     height=110,
 )
 
-run_query = st.button("Ask", type="primary", disabled=not query.strip() or chunk_count == 0)
+run_query = st.button("Ask", type="primary", disabled=chunk_count == 0)
 
 if chunk_count == 0:
     st.warning("No queryable chunks were found. Sync a Hugging Face chunk index or build the local Chroma collection first.")
 
 if run_query:
+    query_text = query.strip()
+    if not query_text:
+        st.warning("Enter a question before asking.")
+        st.stop()
+
     if not get_openai_api_key():
         st.error("Set OPENAI_KEY or OPENAI_API_KEY in .env before querying.")
         st.stop()
 
     with st.spinner("Retrieving context and generating an answer..."):
         response = pipeline.rag_query(
-            query=query.strip(),
+            query=query_text,
             n_results=n_results,
             min_similarity=min_similarity,
             filter_category=filter_category.strip() or None,
