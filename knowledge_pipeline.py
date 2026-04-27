@@ -67,12 +67,16 @@ def load_dotenv_if_available() -> None:
     dotenv.load_dotenv()
 
 
+def get_openai_api_key() -> str | None:
+    return os.getenv("OPENAI_KEY") or os.getenv("OPENAI_API_KEY")
+
+
 @dataclass
 class PipelineConfig:
     member_mode: bool = True
     search_query: str = "all:computer"
     start: int = 0
-    max_results: int = 200
+    max_results: int = 1000
     pdf_dir: Path = Path("pdfs")
     min_page_length: int = 100
     chunk_size: int = 800
@@ -271,6 +275,22 @@ def fetch_all_papers(
 
 def sanitize_filename(name: str) -> str:
     return re.sub(r'[\\/*?:"<>|]', "_", name)
+
+
+def paper_from_pdf_path(path: str | Path) -> dict[str, Any]:
+    path = Path(path)
+    title = path.stem.replace("_", " ").strip() or "untitled"
+    paper_id = re.sub(r"[^A-Za-z0-9_.-]+", "_", path.stem).strip("_") or "paper_0"
+    return {
+        "arxiv_id": paper_id,
+        "title": title,
+        "summary": "",
+        "published": "",
+        "authors": [],
+        "primary_category": "",
+        "categories": [],
+        "pdf_link": "",
+    }
 
 
 def download_pdf(url: str, save_path: str | Path, overwrite: bool = False, delay: float = 1.0) -> Path:
@@ -664,7 +684,7 @@ class KnowledgeMiningPipeline:
 
         load_dotenv_if_available()
         self.config = config or PipelineConfig()
-        self.openai_client = openai_client or OpenAI(api_key=os.getenv("OPENAI_KEY"))
+        self.openai_client = openai_client or OpenAI(api_key=get_openai_api_key())
         self.hf_cache = hf_cache or HuggingFacePdfCache()
         self._chroma_client = None
         self._collection = None
@@ -782,13 +802,27 @@ class KnowledgeMiningPipeline:
         documents, metadatas, ids, embeddings = self.embed_chunks(final_chunks)
         collection = self.get_collection(reset=reset_collection)
         for index in range(0, len(documents), upsert_batch_size):
-            collection.add(
+            collection.upsert(
                 ids=ids[index : index + upsert_batch_size],
                 documents=documents[index : index + upsert_batch_size],
                 metadatas=metadatas[index : index + upsert_batch_size],
                 embeddings=embeddings[index : index + upsert_batch_size],
             )
         return len(documents)
+
+    def ingest_pdf_file(
+        self,
+        pdf_path: str | Path,
+        enrich_entities: bool = True,
+        reset_collection: bool = False,
+    ) -> int:
+        paper = paper_from_pdf_path(pdf_path)
+        parsed = parse_pdf(paper, pdf_path)
+        cleaned_papers = clean_processed_papers([parsed], self.config.min_page_length)
+        final_chunks = self.chunks_from_cleaned_papers(cleaned_papers, enrich_entities=enrich_entities)
+        if not final_chunks:
+            return 0
+        return self.store_chunks(final_chunks, reset_collection=reset_collection)
 
     def retrieve_chunks(self, query: str, n_results: int = 3, filter_category: str | None = None) -> dict[str, Any]:
         query_embedding = self.get_embeddings([query])[0]
@@ -921,6 +955,7 @@ class KnowledgeMiningPipeline:
                     "cosine_similarity": result["cosine_similarity"],
                     "hybrid_score": result["hybrid_score"],
                     "entity_overlap": result["entity_overlap"],
+                    "text": result["text"],
                 }
             )
         answer = self.generate_answer(query, "\n\n".join(context_parts))

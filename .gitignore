@@ -11,7 +11,9 @@ checkpoint.json
 *.so
 # Chroma DB
 chroma.sqlite3
-.chroma_db\
+chroma_db/
+.chroma_db/
+.streamlit/secrets.toml
 
 # Distribution / packaging
 .Python
