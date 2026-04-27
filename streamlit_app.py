@@ -221,7 +221,7 @@ if run_query:
     sources = response.get("sources", [])
     st.subheader("Sources")
     if sources:
-        st.dataframe(source_table(sources), hide_index=True, use_container_width=True)
+        st.dataframe(source_table(sources), hide_index=True, width="stretch")
     else:
         st.info("No sources met the retrieval threshold.")
 
