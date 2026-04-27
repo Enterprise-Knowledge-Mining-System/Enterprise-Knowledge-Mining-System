@@ -115,8 +115,18 @@ def cached_hf_files(repo_id: str, token: str | None) -> list[str]:
     return list_hf_files(repo_id, token)
 
 
-def chroma_db_exists(path: str) -> bool:
-    return (Path(path) / "chroma.sqlite3").exists()
+def chroma_collection_has_chunks(path: str, collection_name: str) -> bool:
+    if not (Path(path) / "chroma.sqlite3").exists():
+        return False
+
+    try:
+        import chromadb
+
+        client = chromadb.PersistentClient(path=path)
+        collection = client.get_collection(collection_name)
+        return collection.count() > 0
+    except Exception:
+        return False
 
 
 load_streamlit_secrets()
@@ -173,19 +183,23 @@ with st.sidebar:
 
     configured_archive = os.getenv("HF_CHROMA_ARCHIVE", DEFAULT_CHROMA_ARCHIVE)
     archive_options = sorted(set(chroma_archives + ([configured_archive] if configured_archive else [])))
-    selected_archive = st.selectbox("Chroma archive", archive_options) if archive_options else None
+    archive_index = archive_options.index(configured_archive) if configured_archive in archive_options else 0
+    selected_archive = st.selectbox("Chroma archive", archive_options, index=archive_index) if archive_options else None
     restore_archive = st.button("Restore Chroma archive", disabled=not selected_archive)
 
     selected_index = st.selectbox("Chunk index file", index_files) if index_files else None
     sync_from_hf = st.button("Sync Hugging Face index", disabled=not selected_index)
 
-if repo_id and selected_archive and (restore_archive or not chroma_db_exists(chroma_path)):
+has_queryable_chunks = chroma_collection_has_chunks(chroma_path, collection_name)
+
+if repo_id and selected_archive and (restore_archive or not has_queryable_chunks):
     with st.spinner("Restoring ChromaDB from Hugging Face..."):
         try:
             restore_chroma_archive(repo_id, selected_archive, chroma_path, hf_token)
         except Exception as exc:
             st.error(f"Could not restore ChromaDB archive '{selected_archive}' from Hugging Face: {exc}")
             st.stop()
+    get_pipeline.clear()
     st.success("ChromaDB restored from Hugging Face.")
 
 pipeline = get_pipeline(chroma_path, collection_name, embedding_model, rag_model)
