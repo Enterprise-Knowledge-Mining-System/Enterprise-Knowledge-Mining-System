@@ -3,6 +3,10 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+*temp
+*db
+# checkpoint.json
+
 # C extensions
 *.so
 # Chroma DB
@@ -214,4 +218,4 @@ __marimo__/
 pdfs/
 
 .idea/
-/chroma_db
+#/chroma_db
