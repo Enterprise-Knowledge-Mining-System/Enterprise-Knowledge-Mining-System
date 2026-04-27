@@ -5,7 +5,7 @@ __pycache__/
 
 *temp
 *db
-checkpoint.json
+# checkpoint.json
 
 # C extensions
 *.so
@@ -218,4 +218,4 @@ __marimo__/
 pdfs/
 
 .idea/
-/chroma_db
+#/chroma_db
