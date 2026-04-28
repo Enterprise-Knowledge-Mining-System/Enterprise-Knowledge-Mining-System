@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -129,6 +130,37 @@ def chroma_collection_has_chunks(path: str, collection_name: str) -> bool:
         return False
 
 
+@st.cache_data(ttl=300, show_spinner=False)
+def count_indexed_papers(path: str, collection_name: str, batch_size: int = 5000) -> int:
+    if not (Path(path) / "chroma.sqlite3").exists():
+        return 0
+
+    try:
+        import chromadb
+
+        client = chromadb.PersistentClient(path=path)
+        collection = client.get_collection(collection_name)
+        total_chunks = collection.count()
+        paper_ids: set[str] = set()
+
+        for offset in range(0, total_chunks, batch_size):
+            batch = collection.get(
+                include=["metadatas"],
+                limit=batch_size,
+                offset=offset,
+            )
+            for metadata in batch.get("metadatas") or []:
+                if not metadata:
+                    continue
+                paper_id = metadata.get("paper_id") or metadata.get("title")
+                if paper_id:
+                    paper_ids.add(str(paper_id))
+
+        return len(paper_ids)
+    except Exception:
+        return 0
+
+
 load_streamlit_secrets()
 collapse_sidebar_once()
 
@@ -236,17 +268,26 @@ if ingest_pdfs and repo_id:
         st.warning(f"Ingested {total_chunks:,} chunks. {len(failed_files):,} PDFs failed.")
     else:
         st.success(f"Ingested {total_chunks:,} chunks from {len(selected_pdfs):,} PDFs.")
+    count_indexed_papers.clear()
 
 if sync_from_hf and repo_id and selected_index:
     with st.spinner("Downloading stored chunks and embeddings from Hugging Face..."):
         synced_count = hydrate_collection_from_hf_index(collection, repo_id, selected_index, hf_token)
+    count_indexed_papers.clear()
     st.success(f"Synced {synced_count:,} embedded chunks from Hugging Face.")
 
 chunk_count = collection.count()
+paper_count = count_indexed_papers(chroma_path, collection_name)
+last_response_time = st.session_state.get("last_query_response_time")
 
-status_col, key_col = st.columns([1, 1])
-status_col.metric("Indexed chunks", f"{chunk_count:,}")
-key_col.metric("OpenAI key", "Configured" if get_openai_api_key() else "Missing")
+papers_col, chunks_col, response_time_col = st.columns(3)
+papers_col.metric("Indexed papers", f"{paper_count:,}")
+chunks_col.metric("Indexed chunks", f"{chunk_count:,}")
+response_time_slot = response_time_col.empty()
+response_time_slot.metric(
+    "Query response time",
+    f"{last_response_time:.2f}s" if last_response_time is not None else "Not run",
+)
 
 if hf_error:
     st.error(f"Could not read the Hugging Face dataset: {hf_error}")
@@ -275,6 +316,7 @@ if run_query:
         st.stop()
 
     with st.spinner("Retrieving context and generating an answer..."):
+        query_start_time = time.perf_counter()
         response = pipeline.rag_query(
             query=query_text,
             n_results=n_results,
@@ -283,6 +325,8 @@ if run_query:
             use_hybrid=use_hybrid,
             entity_bonus=entity_bonus,
         )
+        st.session_state.last_query_response_time = time.perf_counter() - query_start_time
+        response_time_slot.metric("Query response time", f"{st.session_state.last_query_response_time:.2f}s")
 
     st.subheader("Answer")
     st.write(response["answer"])
