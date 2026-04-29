@@ -1,0 +1,868 @@
+{
+  "evaluation_dataset": [
+    {
+      "question": "What problem does the paper address in creating semantic segmentation datasets?",
+      "expected_answer": "The paper addresses the high cost and human effort required to create large datasets with pixel-level semantic labels.",
+      "source_title": "Playing for Data: Ground Truth from Computer Games",
+      "expected_keywords": [
+        "semantic segmentation",
+        "pixel-level labels",
+        "human effort",
+        "datasets"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "What approach is proposed for generating ground truth data?",
+      "expected_answer": "The paper proposes creating pixel-accurate semantic label maps from images extracted from modern computer games by reconstructing associations from communication between the game and graphics hardware.",
+      "source_title": "Playing for Data: Ground Truth from Computer Games",
+      "expected_keywords": [
+        "computer games",
+        "semantic label maps",
+        "graphics hardware",
+        "ground truth"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What result did the authors report using game data with the CamVid dataset?",
+      "expected_answer": "Models trained with game data and only one-third of the CamVid training set outperformed models trained on the full CamVid training set.",
+      "source_title": "Playing for Data: Ground Truth from Computer Games",
+      "expected_keywords": ["game data", "CamVid", "one-third", "outperform"],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What is the main purpose of the proposed HCI system?",
+      "expected_answer": "The system uses face and hand gesture recognition to control a computer media player.",
+      "source_title": "Real-Time Human-Computer Interaction Based on Face and Hand Gesture Recognition",
+      "expected_keywords": [
+        "face recognition",
+        "hand gesture recognition",
+        "media player",
+        "HCI"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "What techniques are used to extract the face and hand locations?",
+      "expected_answer": "The method combines skin detection and cascade detection to extract face and hand locations from the image.",
+      "source_title": "Real-Time Human-Computer Interaction Based on Face and Hand Gesture Recognition",
+      "expected_keywords": [
+        "skin detection",
+        "cascade detector",
+        "face location",
+        "hand location"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What accuracy was achieved on the static American Sign Language database?",
+      "expected_answer": "The proposed hand gesture recognition method achieved an accuracy rate near 99.40% on the static ASL database.",
+      "source_title": "Real-Time Human-Computer Interaction Based on Face and Hand Gesture Recognition",
+      "expected_keywords": [
+        "ASL",
+        "hand gesture",
+        "99.40%",
+        "recognition accuracy"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "What are three feats that classical and quantum information can perform together?",
+      "expected_answer": "They can enable quantum computing, quantum cryptography, and quantum teleportation.",
+      "source_title": "New Trends in Quantum Computing",
+      "expected_keywords": [
+        "quantum computing",
+        "quantum cryptography",
+        "quantum teleportation"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "Why is Shor’s algorithm significant according to the paper?",
+      "expected_answer": "Shor’s algorithm allows polynomial-time factorization of large integers, which has major implications for modern cryptography.",
+      "source_title": "New Trends in Quantum Computing",
+      "expected_keywords": [
+        "Shor",
+        "factorization",
+        "polynomial-time",
+        "cryptography"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What makes quantum information different from classical information?",
+      "expected_answer": "Quantum information cannot be read or copied without disturbance, but it can exist in a superposition of classical states.",
+      "source_title": "New Trends in Quantum Computing",
+      "expected_keywords": [
+        "quantum information",
+        "copied",
+        "disturbance",
+        "superposition"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What hardware was used to train DeepSeek-V3?",
+      "expected_answer": "DeepSeek-V3 was trained on 2,048 NVIDIA H800 GPUs.",
+      "source_title": "Insights into DeepSeek-V3: Scaling Challenges and Reflections on Hardware for AI Architectures",
+      "expected_keywords": ["DeepSeek-V3", "NVIDIA H800", "2,048 GPUs"],
+      "difficulty": "easy"
+    },
+    {
+      "question": "What key model and infrastructure innovations are highlighted in the paper?",
+      "expected_answer": "The paper highlights Multi-head Latent Attention, Mixture-of-Experts architectures, FP8 mixed-precision training, and a Multi-Plane Network Topology.",
+      "source_title": "Insights into DeepSeek-V3: Scaling Challenges and Reflections on Hardware for AI Architectures",
+      "expected_keywords": ["MLA", "MoE", "FP8", "Multi-Plane Network"],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What are the three core scaling challenges discussed for LLMs?",
+      "expected_answer": "The paper discusses memory efficiency, cost-effectiveness, and inference speed as core challenges in scaling LLMs.",
+      "source_title": "Insights into DeepSeek-V3: Scaling Challenges and Reflections on Hardware for AI Architectures",
+      "expected_keywords": [
+        "memory efficiency",
+        "cost-effectiveness",
+        "inference speed",
+        "LLM scaling"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What is the main focus of this research paper?",
+      "expected_answer": "The paper focuses on mining data in real time for pattern detection in a secure cloud computing environment using decision tree and Random Forest algorithms over a RESTful API.",
+      "source_title": "Implementation of Data Mining on a Secure Cloud Computing over a Web API using Supervised Machine Learning Algorithm",
+      "expected_keywords": [
+        "data mining",
+        "secure cloud",
+        "RESTful API",
+        "decision tree",
+        "Random Forest"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What accuracy did the model achieve?",
+      "expected_answer": "The model achieved 94% accuracy.",
+      "source_title": "Implementation of Data Mining on a Secure Cloud Computing over a Web API using Supervised Machine Learning Algorithm",
+      "expected_keywords": ["accuracy", "94%", "model"],
+      "difficulty": "easy"
+    },
+    {
+      "question": "Why was a background Windows service used in the system?",
+      "expected_answer": "It was used to complement the Web API by picking up records the API missed or delayed, preventing the API service from being overwhelmed.",
+      "source_title": "Implementation of Data Mining on a Secure Cloud Computing over a Web API using Supervised Machine Learning Algorithm",
+      "expected_keywords": [
+        "background service",
+        "Web API",
+        "records",
+        "overwhelmed",
+        "efficiency"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What problem do HCI and visualization techniques aim to address in NLG models?",
+      "expected_answer": "They aim to improve transparency, usability, and interpretability of NLG models by making their decision-making processes more understandable.",
+      "source_title": "Human-Computer Interaction and Visualization in Natural Language Generation Models",
+      "expected_keywords": [
+        "HCI",
+        "visualization",
+        "transparency",
+        "interpretability",
+        "NLG"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "What three levels does the survey use to examine text generation based on NLG models?",
+      "expected_answer": "The survey examines the process from the Data, Model, and System levels.",
+      "source_title": "Human-Computer Interaction and Visualization in Natural Language Generation Models",
+      "expected_keywords": [
+        "Data level",
+        "Model level",
+        "System level",
+        "taxonomy"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "Why are NLG models described as difficult to interpret?",
+      "expected_answer": "Their complex architectures and large parameter sizes make them opaque and difficult to understand.",
+      "source_title": "Human-Computer Interaction and Visualization in Natural Language Generation Models",
+      "expected_keywords": [
+        "complex architecture",
+        "parameters",
+        "black-box",
+        "interpretability"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "What is the purpose of the paper?",
+      "expected_answer": "The paper reflects on lessons from workshops about ethical considerations in creative applications of computer vision and aims to bring artists and machine learning researchers into conversation.",
+      "source_title": "Ethics and Creativity in Computer Vision",
+      "expected_keywords": [
+        "ethics",
+        "creativity",
+        "computer vision",
+        "artists",
+        "machine learning"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "What was the focus of the first Computer Vision for Fashion, Art and Design workshop?",
+      "expected_answer": "It focused on generating, analyzing, and processing visual content and invited the computer vision community to use generative models as tools.",
+      "source_title": "Ethics and Creativity in Computer Vision",
+      "expected_keywords": [
+        "CVFAD",
+        "visual content",
+        "generative models",
+        "fashion",
+        "art"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What ethical themes were discussed during the E3CV workshop?",
+      "expected_answer": "The workshop discussed creative computer vision as a new form of art, its influence on society and representations, and areas requiring attention due to potential harms.",
+      "source_title": "Ethics and Creativity in Computer Vision",
+      "expected_keywords": [
+        "E3CV",
+        "society",
+        "representation",
+        "potential harms",
+        "art"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "Why are crowdsourcing platforms important for computer vision?",
+      "expected_answer": "They provide an inexpensive way to collect human annotations for many visual perception tasks.",
+      "source_title": "Crowdsourcing in Computer Vision",
+      "expected_keywords": [
+        "crowdsourcing",
+        "annotations",
+        "visual perception",
+        "inexpensive"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "What are three major purposes of annotated benchmark datasets in computer vision?",
+      "expected_answer": "They focus community effort, evaluate progress and compare algorithms, and provide training data for learning statistical properties of the visual world.",
+      "source_title": "Crowdsourcing in Computer Vision",
+      "expected_keywords": [
+        "benchmark datasets",
+        "evaluate progress",
+        "training data",
+        "algorithms"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What trade-off is discussed when deciding what annotations to collect?",
+      "expected_answer": "The trade-off is between collecting more images with sparse labels or fewer images with more detailed labels.",
+      "source_title": "Crowdsourcing in Computer Vision",
+      "expected_keywords": [
+        "sparse labels",
+        "detailed labels",
+        "annotation scale",
+        "trade-off"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What is the main aim of the paper?",
+      "expected_answer": "The paper compares deep learning and traditional computer vision, discusses their benefits and drawbacks, and explores how they can be combined.",
+      "source_title": "Deep Learning vs. Traditional Computer Vision",
+      "expected_keywords": [
+        "deep learning",
+        "traditional computer vision",
+        "hybrid techniques"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "Why has deep learning dominated image classification since 2012?",
+      "expected_answer": "Deep learning has dominated because it achieved substantially better performance than traditional methods after the success of deep convolutional neural networks.",
+      "source_title": "Deep Learning vs. Traditional Computer Vision",
+      "expected_keywords": [
+        "image classification",
+        "CNNs",
+        "performance",
+        "2012"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What is a major bottleneck in the deep learning workflow for semantic segmentation?",
+      "expected_answer": "Dataset annotation is a major bottleneck because every pixel must be accurately labelled.",
+      "source_title": "Deep Learning vs. Traditional Computer Vision",
+      "expected_keywords": [
+        "dataset annotation",
+        "bottleneck",
+        "semantic segmentation",
+        "pixel labelling"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "What is the main purpose of the proposed cloud computing framework?",
+      "expected_answer": "The framework aims to help medical image analysis users access and use image analysis algorithms through the cloud without needing access to the algorithm code.",
+      "source_title": "Cloud Computing Framework for Computer Vision Research: An Introduction",
+      "expected_keywords": [
+        "cloud computing",
+        "medical image analysis",
+        "algorithms",
+        "user interface"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "Why is generating ground truth outlined shapes important?",
+      "expected_answer": "Ground truth outlined shapes are important for validating image segmentation algorithms.",
+      "source_title": "Cloud Computing Framework for Computer Vision Research: An Introduction",
+      "expected_keywords": [
+        "ground truth",
+        "segmentation",
+        "validation",
+        "outlined shapes"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "What are some components proposed for the cloud-based framework?",
+      "expected_answer": "The framework includes standard datasets, metadata, web services, workflow orchestration, imaging and visualization toolkits, and usability tools for clinicians.",
+      "source_title": "Cloud Computing Framework for Computer Vision Research: An Introduction",
+      "expected_keywords": [
+        "datasets",
+        "metadata",
+        "web services",
+        "workflow",
+        "clinicians"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What are the main computing requirements for autonomous driving platforms?",
+      "expected_answer": "They must provide high performance, low power consumption, low thermal dissipation, and low cost.",
+      "source_title": "CAAD: Computer Architecture for Autonomous Driving",
+      "expected_keywords": [
+        "high performance",
+        "low power",
+        "thermal dissipation",
+        "low cost"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "What sensors are mentioned for Level 3 and Level 4 autonomous vehicles?",
+      "expected_answer": "The paper mentions LiDAR, GPS, IMU, cameras, radar, and sonar.",
+      "source_title": "CAAD: Computer Architecture for Autonomous Driving",
+      "expected_keywords": ["LiDAR", "GPS", "IMU", "cameras", "radar", "sonar"],
+      "difficulty": "easy"
+    },
+    {
+      "question": "What are the three main stages of autonomous driving tasks shown in the paper?",
+      "expected_answer": "The three main stages are sensing, perception, and decision.",
+      "source_title": "CAAD: Computer Architecture for Autonomous Driving",
+      "expected_keywords": [
+        "sensing",
+        "perception",
+        "decision",
+        "autonomous driving"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "What are graph neural networks designed to operate on?",
+      "expected_answer": "GNNs are deep learning models designed to operate on graph structures.",
+      "source_title": "Architectural Implications of Graph Neural Networks",
+      "expected_keywords": ["GNN", "graph structures", "deep learning"],
+      "difficulty": "easy"
+    },
+    {
+      "question": "Why are GNNs considered different from CNNs and MLPs?",
+      "expected_answer": "GNNs combine deep learning and graph analytics, creating a computation paradigm with different workload patterns from CNNs and MLPs.",
+      "source_title": "Architectural Implications of Graph Neural Networks",
+      "expected_keywords": [
+        "graph analytics",
+        "CNN",
+        "MLP",
+        "computation paradigm"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What is the goal of the paper’s benchmark suite construction?",
+      "expected_answer": "The goal is to construct representative GNN models that cover common workload patterns and characterize GNN computation at inference stage.",
+      "source_title": "Architectural Implications of Graph Neural Networks",
+      "expected_keywords": [
+        "benchmark suite",
+        "workload patterns",
+        "inference",
+        "characterization"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What framework does the paper improve?",
+      "expected_answer": "The paper improves a static logical framework for formalizing and mechanizing set theories by adding coherent extensions by definitions.",
+      "source_title": "Applicable Mathematics in a Minimal Computational Theory of Sets",
+      "expected_keywords": [
+        "static logical framework",
+        "set theories",
+        "definitions",
+        "mechanizing"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What does the paper show about the minimal predicatively acceptable theory?",
+      "expected_answer": "It shows that the minimal theory proving the existence of infinite sets is computational and sufficient for developing large portions of scientifically applicable mathematics.",
+      "source_title": "Applicable Mathematics in a Minimal Computational Theory of Sets",
+      "expected_keywords": [
+        "minimal theory",
+        "infinite sets",
+        "computational theory",
+        "applicable mathematics"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "question": "How does the paper treat the collection of real numbers?",
+      "expected_answer": "It treats the real numbers as a proper class, introduced as a unary predicate using the static extension method.",
+      "source_title": "Applicable Mathematics in a Minimal Computational Theory of Sets",
+      "expected_keywords": [
+        "real numbers",
+        "proper class",
+        "unary predicate",
+        "static extension"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "question": "What is the main purpose of the paper?",
+      "expected_answer": "The paper gives an overview of cybercrime, explains reasons for cybercrime, discusses detection of criminal mail, and offers recommendations for reducing cybercrime.",
+      "source_title": "Towards Ameliorating Cybercrime and Cybersecurity",
+      "expected_keywords": [
+        "cybercrime",
+        "cybersecurity",
+        "criminal mail",
+        "recommendations"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "How does the paper define cybercrime?",
+      "expected_answer": "Cybercrime is described as a harmful or illegal act committed from or against a computer or network, targeting computer systems or the data processed by them.",
+      "source_title": "Towards Ameliorating Cybercrime and Cybersecurity",
+      "expected_keywords": [
+        "cybercrime",
+        "computer",
+        "network",
+        "illegal behavior",
+        "data"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What methodology was used in the study?",
+      "expected_answer": "The study used questionnaires, personal interviews, observation, internet information, and reports from radio and electronic media.",
+      "source_title": "Towards Ameliorating Cybercrime and Cybersecurity",
+      "expected_keywords": [
+        "questionnaires",
+        "interviews",
+        "observation",
+        "internet",
+        "media"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "What problem does the paper address in ubiquitous computing?",
+      "expected_answer": "It addresses the challenge of dealing with context in context-aware services and proposes an ontology-based approach for service adaptation.",
+      "source_title": "An Ontology Oriented Architecture for Context Aware Services Adaptation",
+      "expected_keywords": [
+        "ubiquitous computing",
+        "context-aware services",
+        "ontology",
+        "adaptation"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "Why are ontologies considered useful for context modeling?",
+      "expected_answer": "Ontologies support knowledge sharing, formal semantics, reasoning on context information, and service interoperability.",
+      "source_title": "An Ontology Oriented Architecture for Context Aware Services Adaptation",
+      "expected_keywords": [
+        "ontologies",
+        "knowledge sharing",
+        "reasoning",
+        "interoperability"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What definition of context does the paper adopt?",
+      "expected_answer": "It adopts Dey’s definition: context is any information that can characterize the situation of an entity relevant to the interaction between a user and an application.",
+      "source_title": "An Ontology Oriented Architecture for Context Aware Services Adaptation",
+      "expected_keywords": ["Dey", "context", "entity", "user", "application"],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What is the main security concern discussed in the paper?",
+      "expected_answer": "The paper discusses data security, privacy, data breaches, and trust issues in cloud computing.",
+      "source_title": "An Efficient Framework for Information Security in Cloud Computing Using Auditing Algorithm Shell",
+      "expected_keywords": [
+        "cloud security",
+        "privacy",
+        "data breaches",
+        "trust"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "What framework does the paper introduce?",
+      "expected_answer": "It introduces a quad-layered framework for data security, data privacy, data breaches, and process-related aspects.",
+      "source_title": "An Efficient Framework for Information Security in Cloud Computing Using Auditing Algorithm Shell",
+      "expected_keywords": [
+        "quad-layered framework",
+        "security",
+        "privacy",
+        "cloud computing"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What are the multiple security means used in the framework?",
+      "expected_answer": "The framework uses secure data transmission, encrypted data and processing, database secure shell, and internal/external log auditing.",
+      "source_title": "An Efficient Framework for Information Security in Cloud Computing Using Auditing Algorithm Shell",
+      "expected_keywords": [
+        "secure transmission",
+        "encryption",
+        "database secure shell",
+        "log auditing"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What programming formalism does the paper investigate?",
+      "expected_answer": "The paper investigates ATR, essentially a call-by-value version of PCF under a complexity-theoretically motivated type system.",
+      "source_title": "Adventures in Time and Space",
+      "expected_keywords": ["ATR", "PCF", "call-by-value", "type system"],
+      "difficulty": "hard"
+    },
+    {
+      "question": "What do ATR’s first-order and second-order programs characterize?",
+      "expected_answer": "Its first-order programs characterize polynomial-time computable functions, and its second-order programs characterize type-2 basic feasible functionals.",
+      "source_title": "Adventures in Time and Space",
+      "expected_keywords": [
+        "first-order",
+        "second-order",
+        "polynomial-time",
+        "basic feasible functionals"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "question": "What are the two parts of the ATR type system mainly designed to restrict?",
+      "expected_answer": "One part restricts the sizes of expression values, while the other restricts the time required to evaluate expressions.",
+      "source_title": "Adventures in Time and Space",
+      "expected_keywords": [
+        "size restriction",
+        "time restriction",
+        "type system",
+        "evaluation"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What problem does the paper address in topological quantum computing?",
+      "expected_answer": "It addresses the problem of finding an optimal product of braid generators to approximate a quantum gate while considering both gate approximation error and braid length.",
+      "source_title": "A Probabilistic Evolutionary Optimization Approach to Compute Quasiparticle Braids",
+      "expected_keywords": [
+        "topological quantum computing",
+        "braid generators",
+        "quantum gate",
+        "braid length"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What algorithm family does the paper propose for solving the braid optimization problem?",
+      "expected_answer": "The paper proposes variants of estimation of distribution algorithms.",
+      "source_title": "A Probabilistic Evolutionary Optimization Approach to Compute Quasiparticle Braids",
+      "expected_keywords": [
+        "estimation of distribution algorithms",
+        "EDAs",
+        "optimization"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "What result is reported for the best algorithm?",
+      "expected_answer": "The best algorithm produced many solutions approximating the target gate with accuracy on the order of 10^-6 and with lengths up to 9 times shorter than comparable braids from other methods.",
+      "source_title": "A Probabilistic Evolutionary Optimization Approach to Compute Quasiparticle Braids",
+      "expected_keywords": [
+        "10^-6",
+        "target gate",
+        "shorter braids",
+        "best algorithm"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What new complexity model does the paper introduce?",
+      "expected_answer": "The paper introduces r-Complexity, a refined asymptotic notation for evaluating algorithm performance and complexity.",
+      "source_title": "A New Metric for Evaluating the Performance and Complexity of Computer Programs",
+      "expected_keywords": [
+        "r-Complexity",
+        "asymptotic notation",
+        "algorithm complexity"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "What advantage does r-Complexity claim over traditional Bachmann-Landau notation?",
+      "expected_answer": "It provides finer-grained complexity feedback for similar programs, even when they belong to the same conventional complexity class.",
+      "source_title": "A New Metric for Evaluating the Performance and Complexity of Computer Programs",
+      "expected_keywords": [
+        "Bachmann-Landau",
+        "fine-grained",
+        "complexity class",
+        "feedback"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What future metrics does the paper suggest could be analyzed using r-Complexity?",
+      "expected_answer": "The paper suggests metrics such as average response time for network services and L1 cache misses for compute-intensive algorithms.",
+      "source_title": "A New Metric for Evaluating the Performance and Complexity of Computer Programs",
+      "expected_keywords": [
+        "response time",
+        "network services",
+        "L1 cache misses",
+        "future metrics"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What is the main purpose of the multilayer model proposed in the paper?",
+      "expected_answer": "The paper proposes a formal model of computer networks based on hierarchical multilayer networks, where individual layers are represented as multiplex networks.",
+      "source_title": "A Multilayer Model of Computer Networks",
+      "expected_keywords": [
+        "formal model",
+        "computer networks",
+        "hierarchical multilayer networks",
+        "multiplex networks"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What condition does the concept of layered networks provide in the proposed model?",
+      "expected_answer": "It provides top-down consistency, meaning each node or logical path on a given layer corresponds to nodes or paths on the layer below.",
+      "source_title": "A Multilayer Model of Computer Networks",
+      "expected_keywords": [
+        "top-down consistency",
+        "layered networks",
+        "corresponding nodes",
+        "logical path"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What additional layers are added in the extended multilayer reference model?",
+      "expected_answer": "The extended model adds the engineering environment layer and the social environment layer to account for external systems and human or organizational networks.",
+      "source_title": "A Multilayer Model of Computer Networks",
+      "expected_keywords": [
+        "engineering environment layer",
+        "social environment layer",
+        "extended model",
+        "network environment"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "What modification does the paper make to Scott’s graph model?",
+      "expected_answer": "The paper replaces finite sets of input values with finite sequences, allowing the model to account for the order in which observations are made.",
+      "source_title": "A Graph Model for Imperative Computation",
+      "expected_keywords": [
+        "Scott’s graph model",
+        "finite sequences",
+        "order",
+        "observations"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "question": "What kind of programming constructs can the new graph model interpret?",
+      "expected_answer": "The model can interpret imperative constructs including variable assignment, dereferencing, and allocation.",
+      "source_title": "A Graph Model for Imperative Computation",
+      "expected_keywords": [
+        "imperative constructs",
+        "assignment",
+        "dereferencing",
+        "allocation"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What language is the model shown to be fully abstract for?",
+      "expected_answer": "The model is shown to be fully abstract for Reynolds’s Syntactic Control of Interference.",
+      "source_title": "A Graph Model for Imperative Computation",
+      "expected_keywords": [
+        "fully abstract",
+        "Reynolds",
+        "Syntactic Control of Interference",
+        "SCI"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What is the main goal of the Sanskrit poetry algorithm?",
+      "expected_answer": "The algorithm converts prose given as E-text into poetry according to the metrical rules of Sanskrit prosody while also handling compulsory sandhi.",
+      "source_title": "A Computational Algorithm based on Empirical Analysis, that Composes Sanskrit Poetry",
+      "expected_keywords": [
+        "Sanskrit poetry",
+        "E-text",
+        "metrical rules",
+        "sandhi"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "How does the algorithm improve performance when searching for a suitable metre?",
+      "expected_answer": "It reduces the target search database by establishing a maximum-minimum syllable band, so only metres within that band are considered.",
+      "source_title": "A Computational Algorithm based on Empirical Analysis, that Composes Sanskrit Poetry",
+      "expected_keywords": [
+        "Max-Min band",
+        "syllables",
+        "metres",
+        "search space",
+        "performance"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "question": "What accessibility feature is included in the system?",
+      "expected_answer": "The system includes a speech recognition interface to help visually impaired users dictate words in E-text for versification.",
+      "source_title": "A Computational Algorithm based on Empirical Analysis, that Composes Sanskrit Poetry",
+      "expected_keywords": [
+        "speech recognition",
+        "visually impaired",
+        "E-text",
+        "Poetry Composer Engine"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "What does the paper propose for finite labelled Markov chains?",
+      "expected_answer": "The paper proposes a complete axiomatization of the bisimilarity distance of Desharnais et al. for finite labelled Markov chains.",
+      "source_title": "A Complete Quantitative Deduction System for the Bisimilarity Distance on Markov Chains",
+      "expected_keywords": [
+        "complete axiomatization",
+        "bisimilarity distance",
+        "Markov chains"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "question": "What does the quantitative equation t ≡ε s express?",
+      "expected_answer": "It expresses that term t is approximately equal to term s up to an error ε.",
+      "source_title": "A Complete Quantitative Deduction System for the Bisimilarity Distance on Markov Chains",
+      "expected_keywords": [
+        "quantitative equation",
+        "approximately equal",
+        "error ε"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What additional axiom is introduced to extend the probabilistic bisimilarity system?",
+      "expected_answer": "The system introduces an axiom for dealing with the Kantorovich distance between probability distributions.",
+      "source_title": "A Complete Quantitative Deduction System for the Bisimilarity Distance on Markov Chains",
+      "expected_keywords": [
+        "Kantorovich distance",
+        "probability distributions",
+        "probabilistic bisimilarity"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "question": "What was the main aim of the Yoruba folktale animation project?",
+      "expected_answer": "The project aimed to develop animated cartoons of local Yoruba folktales to support cultural heritage and reduce the influence of foreign cartoons.",
+      "source_title": "3D-Computer Animation for a Yoruba Native Folktale",
+      "expected_keywords": [
+        "Yoruba folktale",
+        "animation",
+        "cultural heritage",
+        "foreign cartoons"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "What folktale was selected for the animation and why?",
+      "expected_answer": "The story Ijapa ati Atioro was selected because of its simplicity and the important lessons that can be learned from it.",
+      "source_title": "3D-Computer Animation for a Yoruba Native Folktale",
+      "expected_keywords": [
+        "Ijapa ati Atioro",
+        "tortoise",
+        "bird",
+        "simplicity",
+        "lessons"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "What software tools were used to develop the animation?",
+      "expected_answer": "The animation was developed using Maya Autodesk, Adobe Photoshop Extended, ZBrush, and Adobe After Effects CS6.",
+      "source_title": "3D-Computer Animation for a Yoruba Native Folktale",
+      "expected_keywords": [
+        "Maya Autodesk",
+        "Adobe Photoshop",
+        "ZBrush",
+        "After Effects CS6"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What is the main problem studied in this thesis?",
+      "expected_answer": "The thesis studies methods for computing and optimizing interference-limited wireless coverage maps for a set of transmitters.",
+      "source_title": "Wireless Coverage Area Computation and Optimization",
+      "expected_keywords": [
+        "wireless coverage maps",
+        "interference-limited",
+        "transmitters",
+        "optimization"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "question": "What two wireless models are used to study coverage computation in the thesis?",
+      "expected_answer": "The thesis studies coverage computation using the protocol model and the SINR model.",
+      "source_title": "Wireless Coverage Area Computation and Optimization",
+      "expected_keywords": [
+        "protocol model",
+        "SINR model",
+        "coverage computation",
+        "wireless topology"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "question": "What algorithmic approach is proposed for coverage optimization in the SINR model?",
+      "expected_answer": "The thesis proposes a Random Hill Climbing method to optimize coverage area by assigning transmit powers to a fixed set of transmitters.",
+      "source_title": "Wireless Coverage Area Computation and Optimization",
+      "expected_keywords": [
+        "Random Hill Climbing",
+        "SINR",
+        "transmit power assignment",
+        "coverage area optimization"
+      ],
+      "difficulty": "medium"
+    }
+  ]
+}
