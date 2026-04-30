@@ -147,6 +147,7 @@ celerybeat.pid
 .env
 .envrc
 .venv
+.venv-ragas
 env/
 venv/
 ENV/
@@ -222,3 +223,10 @@ pdfs/
 .idea/
 /chroma_db
 /.streamlit
+
+# RAG evaluation outputs
+rag_evaluation_results.csv
+rag_evaluation_scored_results.json
+ragas_evaluation_results.csv
+rag_evaluation_results.json
+rag_evaluation_summary.csv
