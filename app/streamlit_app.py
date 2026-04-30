@@ -6,7 +6,6 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as components
 
 from app.hf_index_loader import (
     download_hf_file,
@@ -24,41 +23,8 @@ DEFAULT_CHROMA_ARCHIVE = "chroma_db.zip"
 st.set_page_config(
     page_title="Enterprise Knowledge Mining",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded",
 )
-
-
-def collapse_sidebar_once() -> None:
-    if st.session_state.get("sidebar_auto_collapsed"):
-        return
-
-    st.session_state.sidebar_auto_collapsed = True
-    components.html(
-        """
-        <script>
-        const collapseSidebar = () => {
-            const doc = window.parent.document;
-            const collapseButton = doc.querySelector('[data-testid="stSidebarCollapseButton"]');
-            const sidebar = doc.querySelector('[data-testid="stSidebar"]');
-
-            if (!collapseButton || !sidebar) {
-                return;
-            }
-
-            const sidebarWidth = sidebar.getBoundingClientRect().width;
-            if (sidebarWidth > 0) {
-                collapseButton.click();
-            }
-        };
-
-        setTimeout(collapseSidebar, 100);
-        setTimeout(collapseSidebar, 500);
-        setTimeout(collapseSidebar, 1000);
-        </script>
-        """,
-        height=0,
-        width=0,
-    )
 
 
 def load_streamlit_secrets() -> None:
@@ -85,6 +51,17 @@ def get_pipeline(
         rag_model=rag_model,
     )
     return KnowledgeMiningPipeline(config=config)
+
+
+@st.cache_resource(show_spinner=False)
+def get_chroma_collection(chroma_path: str, collection_name: str):
+    import chromadb
+
+    client = chromadb.PersistentClient(path=chroma_path)
+    return client.get_or_create_collection(
+        name=collection_name,
+        configuration={"hnsw": {"space": "cosine"}},
+    )
 
 
 def format_score(value: float | None) -> str:
@@ -162,7 +139,6 @@ def count_indexed_papers(path: str, collection_name: str, batch_size: int = 5000
 
 
 load_streamlit_secrets()
-collapse_sidebar_once()
 
 st.title("Enterprise Knowledge Mining")
 
@@ -180,17 +156,25 @@ with st.sidebar:
     entity_bonus = st.slider("Entity bonus", min_value=0.0, max_value=2.0, value=0.5, step=0.1, disabled=not use_hybrid)
 
     st.header("Hugging Face Corpus")
-    st.caption("Uses HF_REPO_ID and HF_TOKEN from .env.")
+    st.caption("Uses HF_REPO_ID and HF_TOKEN from Streamlit secrets or .env.")
     st.metric("Repository", "Configured" if repo_id else "Missing")
+    refresh_hf_files = st.button("Load Hugging Face files", disabled=not repo_id)
 
     index_files: list[str] = []
     pdf_files: list[str] = []
     chroma_archives: list[str] = []
     total_hf_files: int | None = None
     hf_error: str | None = None
-    if repo_id:
+    if repo_id and refresh_hf_files:
         try:
             hf_files = cached_hf_files(repo_id, hf_token)
+            st.session_state.hf_files = hf_files
+        except Exception as exc:
+            hf_error = str(exc)
+
+    hf_files = st.session_state.get("hf_files", [])
+    if repo_id and hf_files:
+        try:
             total_hf_files = len(hf_files)
             index_files = [file for file in hf_files if file.lower().endswith((".parquet", ".jsonl", ".json", ".csv"))]
             pdf_files = [file for file in hf_files if file.lower().endswith(".pdf")]
@@ -214,7 +198,7 @@ with st.sidebar:
     ingest_pdfs = st.button("Ingest Hugging Face PDFs", disabled=not pdf_files or not get_openai_api_key())
 
     configured_archive = os.getenv("HF_CHROMA_ARCHIVE", DEFAULT_CHROMA_ARCHIVE)
-    archive_options = sorted(set(chroma_archives + ([configured_archive] if configured_archive else [])))
+    archive_options = sorted(set(chroma_archives))
     archive_index = archive_options.index(configured_archive) if configured_archive in archive_options else 0
     selected_archive = st.selectbox("Chroma archive", archive_options, index=archive_index) if archive_options else None
     restore_archive = st.button("Restore Chroma archive", disabled=not selected_archive)
@@ -224,7 +208,7 @@ with st.sidebar:
 
 has_queryable_chunks = chroma_collection_has_chunks(chroma_path, collection_name)
 
-if repo_id and selected_archive and (restore_archive or not has_queryable_chunks):
+if repo_id and selected_archive and restore_archive:
     with st.spinner("Restoring ChromaDB from Hugging Face..."):
         try:
             restore_chroma_archive(repo_id, selected_archive, chroma_path, hf_token)
@@ -241,10 +225,18 @@ if repo_id and selected_archive and (restore_archive or not has_queryable_chunks
         st.stop()
     st.success("ChromaDB restored from Hugging Face.")
 
-pipeline = get_pipeline(chroma_path, collection_name, embedding_model, rag_model)
-collection = pipeline.get_collection()
+try:
+    collection = get_chroma_collection(chroma_path, collection_name)
+except Exception as exc:
+    st.error(f"Could not initialize ChromaDB at '{chroma_path}': {exc}")
+    st.stop()
 
 if ingest_pdfs and repo_id:
+    if not get_openai_api_key():
+        st.error("Set OPENAI_KEY or OPENAI_API_KEY in Streamlit secrets before ingesting PDFs.")
+        st.stop()
+
+    pipeline = get_pipeline(chroma_path, collection_name, embedding_model, rag_model)
     selected_pdfs = pdf_files[int(ingest_offset) : int(ingest_offset) + int(ingest_count)]
     progress = st.progress(0)
     status = st.empty()
@@ -289,6 +281,33 @@ response_time_slot.metric(
     f"{last_response_time:.2f}s" if last_response_time is not None else "Not run",
 )
 
+if chunk_count == 0:
+    st.info(
+        "No indexed data is loaded in this deployment yet. "
+        "Streamlit Cloud does not include local ignored folders like chroma_db/, "
+        "so restore a Chroma archive or sync a chunk index from Hugging Face."
+    )
+
+    setup_col, action_col = st.columns([2, 1])
+    with setup_col:
+        st.write(
+            {
+                "HF_REPO_ID": "Configured" if repo_id else "Missing",
+                "OPENAI API key": "Configured" if get_openai_api_key() else "Missing",
+                "Chroma archive": selected_archive or "Not found",
+                "Chunk index": selected_index or "Not found",
+            }
+        )
+    with action_col:
+        if selected_archive:
+            st.caption("Use the sidebar Restore button to load the Chroma archive.")
+        elif selected_index:
+            st.caption("Use the sidebar Sync button to load the chunk index.")
+        elif not repo_id:
+            st.caption("Add HF_REPO_ID in Streamlit app secrets.")
+        else:
+            st.caption("No archive or index file was found in the Hugging Face dataset.")
+
 if hf_error:
     st.error(f"Could not read the Hugging Face dataset: {hf_error}")
 elif repo_id and total_hf_files and not pdf_files and not index_files:
@@ -302,9 +321,6 @@ query = st.text_area(
 
 run_query = st.button("Ask", type="primary", disabled=chunk_count == 0)
 
-if chunk_count == 0:
-    st.warning("No queryable chunks were found. Sync a Hugging Face chunk index or build the local Chroma collection first.")
-
 if run_query:
     query_text = query.strip()
     if not query_text:
@@ -312,9 +328,10 @@ if run_query:
         st.stop()
 
     if not get_openai_api_key():
-        st.error("Set OPENAI_KEY or OPENAI_API_KEY in .env before querying.")
+        st.error("Set OPENAI_KEY or OPENAI_API_KEY in Streamlit secrets before querying.")
         st.stop()
 
+    pipeline = get_pipeline(chroma_path, collection_name, embedding_model, rag_model)
     with st.spinner("Retrieving context and generating an answer..."):
         query_start_time = time.perf_counter()
         response = pipeline.rag_query(
