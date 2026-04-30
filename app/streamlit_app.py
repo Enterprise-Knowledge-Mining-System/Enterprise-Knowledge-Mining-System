@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import tempfile
 import time
 from pathlib import Path
 
@@ -16,6 +17,18 @@ from app.knowledge_pipeline import KnowledgeMiningPipeline, PipelineConfig, get_
 
 
 DEFAULT_CHROMA_ARCHIVE = "chroma_db.zip"
+
+
+def default_chroma_path() -> str:
+    configured_path = os.getenv("CHROMA_PATH")
+    if configured_path:
+        return configured_path
+
+    local_path = Path("./chroma_db")
+    if (local_path / "chroma.sqlite3").exists():
+        return str(local_path)
+
+    return str(Path(tempfile.gettempdir()) / "enterprise_knowledge_chroma_db")
 
 
 st.set_page_config(
@@ -143,7 +156,7 @@ st.title("Enterprise Knowledge Mining")
 with st.sidebar:
     repo_id, hf_token = get_hf_credentials()
     st.header("Query Settings")
-    chroma_path = st.text_input("Chroma path", value="./chroma_db")
+    chroma_path = st.text_input("Chroma path", value=default_chroma_path())
     collection_name = st.text_input("Collection", value="research_papers")
     embedding_model = st.text_input("Embedding model", value="text-embedding-3-small")
     rag_model = st.text_input("RAG model", value="gpt-4.1-mini")
@@ -192,13 +205,18 @@ with st.sidebar:
 has_queryable_chunks = chroma_collection_has_chunks(chroma_path, collection_name)
 
 if repo_id and selected_archive and restore_archive:
+    get_chroma_collection.clear()
+    get_pipeline.clear()
+    count_indexed_papers.clear()
     with st.spinner("Restoring ChromaDB from Hugging Face..."):
         try:
             restore_chroma_archive(repo_id, selected_archive, chroma_path, hf_token)
         except Exception as exc:
             st.error(f"Could not restore ChromaDB archive '{selected_archive}' from Hugging Face: {exc}")
             st.stop()
+    get_chroma_collection.clear()
     get_pipeline.clear()
+    count_indexed_papers.clear()
     has_queryable_chunks = chroma_collection_has_chunks(chroma_path, collection_name)
     if not has_queryable_chunks:
         st.error(
@@ -230,7 +248,7 @@ response_time_slot.metric(
 if chunk_count == 0:
     st.info(
         "No indexed data is loaded in this deployment yet. "
-        "Streamlit Cloud does not include local ignored folders like chroma_db/, "
+        "Streamlit Cloud does not include local ignored folders like chroma_db, "
         "so restore the Chroma archive from Hugging Face."
     )
 

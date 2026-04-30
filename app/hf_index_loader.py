@@ -4,6 +4,7 @@ import json
 import os
 import shutil
 import tarfile
+import tempfile
 import zipfile
 from pathlib import Path
 from typing import Any
@@ -69,33 +70,34 @@ def restore_chroma_archive(
 ) -> Path:
     archive_path = download_hf_file(repo_id, filename, token)
     destination = Path(destination)
-    staging_dir = destination.with_name(f"{destination.name}_restore")
-    if staging_dir.exists():
-        shutil.rmtree(staging_dir)
-    staging_dir.mkdir(parents=True, exist_ok=True)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    staging_dir = Path(tempfile.mkdtemp(prefix=f"{destination.name}_restore_"))
 
-    lower_name = archive_path.name.lower()
-    if lower_name.endswith(".zip"):
-        with zipfile.ZipFile(archive_path) as archive:
-            archive.extractall(staging_dir)
-    elif lower_name.endswith((".tar", ".tar.gz", ".tgz")):
-        with tarfile.open(archive_path) as archive:
-            archive.extractall(staging_dir)
-    else:
-        raise ValueError(f"Unsupported Chroma archive format: {archive_path.name}")
+    try:
+        lower_name = archive_path.name.lower()
+        if lower_name.endswith(".zip"):
+            with zipfile.ZipFile(archive_path) as archive:
+                archive.extractall(staging_dir)
+        elif lower_name.endswith((".tar", ".tar.gz", ".tgz")):
+            with tarfile.open(archive_path) as archive:
+                archive.extractall(staging_dir)
+        else:
+            raise ValueError(f"Unsupported Chroma archive format: {archive_path.name}")
 
-    candidates = [path for path in staging_dir.rglob("*") if _is_chroma_root(path)]
-    if _is_chroma_root(staging_dir):
-        source_dir = staging_dir
-    elif candidates:
-        source_dir = candidates[0]
-    else:
-        raise ValueError("Archive does not contain a Chroma database with chroma.sqlite3.")
+        candidates = [path for path in staging_dir.rglob("*") if _is_chroma_root(path)]
+        if _is_chroma_root(staging_dir):
+            source_dir = staging_dir
+        elif candidates:
+            source_dir = candidates[0]
+        else:
+            raise ValueError("Archive does not contain a Chroma database with chroma.sqlite3.")
 
-    if destination.exists():
-        shutil.rmtree(destination)
-    shutil.copytree(source_dir, destination)
-    shutil.rmtree(staging_dir, ignore_errors=True)
+        if destination.exists():
+            shutil.rmtree(destination)
+        shutil.move(str(source_dir), str(destination))
+    finally:
+        if staging_dir.exists() and staging_dir != destination:
+            shutil.rmtree(staging_dir, ignore_errors=True)
     return destination
 
 
