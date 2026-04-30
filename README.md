@@ -1,102 +1,203 @@
 # Enterprise Knowledge Mining System
 
-## Project overview
+## Overview
 
-The Enterprise Knowledge Mining System is designed to help organizations extract actionable insights from large collections of unstructured documents, focusing on research papers from arXiv. The system automates information extraction, builds a semantic search engine, and answers natural language questions using retrieval-augmented generation (RAG).
+The Enterprise Knowledge Mining System is a scalable document processing and question-answering system built on arXiv research papers. It extracts structured knowledge from unstructured PDFs and enables semantic search and Retrieval-Augmented Generation (RAG).
 
-### Made with Python 3.11.9
-## Current implementation status
+The system processes research papers, builds embeddings, stores them in a vector database, and answers natural language queries grounded in retrieved content.
 
-The current notebook stores metadata and entity information with each chunk. Retrieval is primarily driven by embedding similarity, but now includes:
+## Key Features
 
-- **Hybrid reranking experiment**: Optionally reranks retrieved chunks based on entity overlap with the query (using `use_hybrid=True`). This is experimental and, so far, has not shown significant improvement over pure embedding similarity.
-- **Category filter**: A filter for primary category is implemented in the search pipeline, but is not yet tested (pending scaling to multiple papers with different categories).
+- Semantic search over research papers
+- PDF ingestion and parsing (PyMuPDF)
+- Section-aware chunking
+- Named Entity Recognition (spaCy `en_core_web_sm`)
+- OpenAI embeddings (`text-embedding-3-small`)
+- ChromaDB vector storage (cosine similarity)
+- RAG-based Q&A (`gpt-4.1-mini`)
+- Streamlit UI for querying the system
+- RAG evaluation using ground truth + RAGAS
 
-### 1. Document ingestion
+## System Architecture
 
-- arXiv API search is working.
-- Paper metadata is extracted, including arXiv ID, title, authors, published date, primary category, category list, summary, and PDF link.
-- The arXiv XML namespace is used to extract arXiv-specific metadata such as primary category.
-- PDF download workflow is implemented for a specific single download.
+- **Ingest:** arXiv API / PDFs
+- **Process:** Cleaning + Section Extraction
+- **Chunk:** Recursive text splitting
+- **NER:** Entity extraction via spaCy
+- **Embed:** OpenAI embeddings
+- **Store:** ChromaDB (vector DB)
+- **Retrieve:** Semantic search
+- **Answer:** RAG (LLM)
 
-### 2. PDF processing
+## Project Structure
 
-- PDFs are converted to markdown using `pymupdf4llm`.
-- Page-level markdown extraction is working.
-- Page metadata such as page number, page count, file path, and document properties are available.
+- data-processingV2.ipynb
+- knowledge_pipeline.py
+- ner_worker.py
+- hf_index_loader.py
+- debug_utils.py
+- streamlit_app.py
+- ground_truth_dataset.json
+- chroma_db/
+- README.md
 
-### 3. Section-aware preprocessing
+## Environment Variables Setup
 
-- Section blocks are extracted from markdown using heading-based rules (##, \*\*, etc.).
-- Text cleaning is implemented for chunk preparation.
-- NER-specific text cleaning is separated from general chunk text cleaning.
-- Entity post-processing removes duplicates and obvious noise.
+Add a `.env` file in your project root with the following structure:
 
-### 4. Chunking and metadata enrichment
+- `OPENAI_KEY="your-api-key"`
+- `HF_TOKEN=your-hf-token`
+- `HF_REPO_ID=your-repo-id`
 
-- Section-aware chunking is implemented.
-- Chunk metadata currently includes:
-  - paper ID
-  - title
-  - section
-  - primary category
-  - categories list
-  - authors
-  - published date
-  - creation date
-  - page number
-  - page count
-  - format
-  - page block index
-  - page chunk index
-  - chunk index
-  - entities (cleaned, comma-separated)
-  - entity labels (comma-separated)
-- Chunk metadata is enriched with extracted entities and entity labels.
+## Environment Setup
 
-### 5. Entity extraction
+- Use **Python 3.11** (recommended for stability)
 
-- spaCy NER is integrated using `en_core_web_md` will eventually switch to `en_core_web_sm` when we increase research papers for faster performance.
-- Extracted entities are cleaned and attached to chunk metadata.
-- NER currently acts as metadata enrichment rather than retrieval ranking logic.
+# 1. Data Processing Environment
 
-### 6. Embeddings and vector storage
+## Create virtual environment
 
-- OpenAI embeddings are generated with `text-embedding-3-small`, will switch to `text-embedding-3-large` when we increase research papers.
-- ChromaDB persistent storage is configured and working.
-- Collection is configured to use cosine similarity instead of the default Euclidean distance.
-- Chunk text, metadata, IDs, and embeddings are being stored successfully.
+- `py -3.11 -m venv .venv`
+- Activate: `./.venv/Scripts/activate`
+- Install dependencies: `pip install -r requirements.txt`
+- Install spaCy model: `python -m spacy download en_core_web_sm`
 
-### 7. Semantic search engine
+### Run Data Processing Pipeline
 
-- Query embedding is generated and compared against stored chunk embeddings.
-- Top matching chunks are returned from ChromaDB.
-- A minimum similarity threshold is applied to filter weak matches.
-- Search results are formatted with academic metadata for inspection.
-- **Hybrid reranking**: Optionally, results can be reranked by combining cosine similarity with entity overlap (see `use_hybrid` parameter). This is experimental and currently does not provide significant improvement.
-- **Category filter**: Retrieval can be filtered by primary category (see `filter_category` parameter), but this feature is pending real-world testing with a multi-paper dataset.
+- Open: `data-processingV2.ipynb`
+- This pipeline:
+  - Fetches arXiv papers
+  - Downloads PDFs
+  - Cleans and extracts text
+  - Splits into chunks
+  - Runs NER
+  - Generates embeddings
+  - Stores in ChromaDB
+- Models used:
+  - `embedding_model = "text-embedding-3-small"`
+  - `rag_model = "gpt-4.1-mini"`
 
-### 8. RAG pipeline
+# 2. Streamlit App (Query Interface)
 
-- RAG is correctly linked to the semantic search component.
-- Retrieved chunks are used to build grounded context for the LLM.
-- The LLM generates answers based only on retrieved context.
-- Source information is returned separately from the answer.
-- The current pipeline correctly handles:
-  - answerable questions
-  - partially answerable questions
-  - unrelated questions with insufficient context
+- Link: https://enterprise-knowledge-mining-system-enterpr-streamlit-app-qwxgr8.streamlit.app
+- Run locally: `streamlit run streamlit_app.py`
+- Features:
+  - Ask natural language questions
+  - View retrieved chunks
+  - Inspect similarity scores
+  - Optional hybrid reranking
 
-### Next Steps:
+# 3. Evaluation Strategy
 
-- Refactor arXiv fetching to support batch paper retrieval
-- Implement batch PDF downloading
-- Convert PDF to markdown directly in chunk processing
-- Refactor the notebook into reusable functions and separate modules
-  - Move helper functions into dedicated files for ingestion, cleaning, processing, vector storage, and RAG, etc.
-- Build `process_pdf_to_chunks()` as the main processing pipeline
-- Scale from 1 paper to 10–20 papers first then eventually 1k papers
-- Tune chunk size, overlap, and top-k retrieval (top-k retrieval is handled by ChromaDB)
-- Add logging/status tracking for downloads and processing
-- Test and tune category filtering and hybrid reranking
-- Deploy a UI only after multi-paper retrieval is stable (e.g., Streamlit)
+The system was evaluated using three complementary approaches to ensure both practical correctness and measurable performance.
+
+## 3.1 Custom Evaluation
+
+- Verified relevant chunks appear in top-k results
+- Observed cosine similarity range: 0.57 – 0.76
+- Correct documents consistently retrieved within top 5
+- Top similarity remains stable across k
+- Average similarity decreases as k increases
+- Confirms weaker results appear at higher k
+- **Conclusion:** Optimal retrieval range is k = 3–5
+- RAG Answer Behaviour:
+  - Answerable → correct grounded answers
+  - Partial → partially correct responses
+  - Unrelated → correctly returns no context
+  - Example: Query: "chocolate cake" → No relevant context returned
+- Hybrid Search Evaluation:
+  - Compared semantic vs hybrid retrieval
+  - Only 1/5 queries changed ranking
+  - Entity overlap often zero
+  - **Conclusion:** Hybrid reranking currently provides minimal benefit
+- NER Quality Analysis:
+  - Common entities: CPU, GPU, IEEE, CNN
+  - Noise observed: “Fig”, “-1”
+  - **Conclusion:** NER useful for metadata, but limited for ranking
+- Chunk Quality Analysis:
+  - ~85,000+ chunks generated
+  - Avg length ~536 characters
+  - Most near max size (~800)
+  - ~5.9% noise chunks
+
+## 3.2 Ground Truth Evaluation
+
+- Dataset: `ground_truth_dataset.json`
+- Contains:
+  - Questions
+  - Expected answers
+  - Source titles
+  - Keywords
+- Used to:
+  - Validate retrieval correctness
+  - Compare generated vs expected answers
+  - Measure keyword coverage
+
+## 3.3 RAGAS Evaluation
+
+- RAGAS was used for standardized evaluation of:
+  - Answer Correctness
+  - Faithfulness
+  - Context Precision
+  - Context Recall
+- This evaluates:
+  - How well answers are grounded in retrieved context
+  - Whether retrieved context is relevant
+  - Whether hallucination occurs
+- **Why Multiple Evaluation Methods?**
+  - Custom evaluation → Understand system behaviour and retrieval quality
+  - Ground truth evaluation → Validate correctness against expected outputs
+  - RAGAS evaluation → Provide standardized, quantitative metrics
+- Together, these ensure both practical reliability and formal validation.
+
+# 4. RAG Evaluation Setup (RAGAS)
+
+- Create separate environment: `py -3.11 -m venv .venv-ragas`
+- Activate: `./.venv-ragas/Scripts/activate`
+- Install dependencies: `pip install -r requirements-ragas.txt`
+
+- **RAGAS uses the following models for evaluation:**
+  - LLM: `gpt-4o-mini`
+  - Embedding model: `text-embedding-3-small`
+
+# Core Pipeline Details
+
+- **PDF Processing:**
+  - PyMuPDF extraction
+  - Removes artifacts, page markers, hyphenation
+- **Chunking:**
+  - RecursiveCharacterTextSplitter
+  - Chunk size ~800
+  - Overlap ~50
+- **Entity Extraction:**
+  - spaCy (`en_core_web_sm`)
+  - Parallelized worker
+  - Stored in metadata
+- **Embeddings:**
+  - OpenAI API
+  - Batch embedding with retry handling
+- **Storage:**
+  - ChromaDB PersistentClient
+  - Cosine similarity
+- **Retrieval:**
+  - Embedding-based semantic search
+  - Optional hybrid reranking
+- **RAG:**
+  - Context from top-k chunks
+  - Answer generation using gpt-4.1-mini
+- **Evaluation Summary:**
+  - Strong retrieval performance
+  - Optimal k ≈ 5
+  - Hybrid reranking limited impact
+  - NER useful but imperfect
+  - High-quality chunk distribution
+- **Limitations:**
+  - No multi-modal support (tables/images)
+  - NER misses domain-specific terms
+  - Fixed top-k retrieval
+  - PDF extraction noise
+- **Future Improvements:**
+  - Neo4j graph-based knowledge layer
+  - Multi-modal ingestion
+  - Feedback loop for answers
+  - Improved NER models
