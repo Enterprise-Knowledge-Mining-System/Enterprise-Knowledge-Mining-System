@@ -230,3 +230,5 @@ rag_evaluation_scored_results.json
 ragas_evaluation_results.csv
 rag_evaluation_results.json
 rag_evaluation_summary.csv
+
+evaluation_results/

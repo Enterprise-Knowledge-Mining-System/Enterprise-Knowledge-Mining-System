@@ -31,15 +31,41 @@ The system processes research papers, builds embeddings, stores them in a vector
 
 ## Project Structure
 
-- data-processingV2.ipynb
-- knowledge_pipeline.py
-- ner_worker.py
-- hf_index_loader.py
-- debug_utils.py
-- streamlit_app.py
-- ground_truth_dataset.json
-- chroma_db/
-- README.md
+## Project Structure
+
+```text
+Enterprise-Knowledge-Mining-System/
+├── app/
+│   ├── debug_utils.py              # Helper functions for inspecting papers, pages, chunks, and search results
+│   ├── hf_index_loader.py          # Loads/restores indexed chunks and ChromaDB archives from Hugging Face
+│   ├── knowledge_pipeline.py       # Core ingestion, processing, embedding, retrieval, and RAG pipeline logic
+│   ├── ner_worker.py               # spaCy NER worker used for entity extraction
+│   └── streamlit_app.py            # Streamlit web interface for querying the system
+│
+├── notebooks/
+│   ├── data-processingV2.ipynb     # Main data processing, indexing, retrieval, and custom evaluation notebook
+│   └── ragas_evaluation.ipynb      # RAGAS evaluation notebook
+│
+├── evaluation_results/
+│   ├── rag_evaluation_results.json          # Raw generated RAG evaluation outputs
+│   ├── rag_evaluation_scored_results.json   # Ground truth evaluation results with scores
+│   ├── rag_evaluation_summary.csv           # Summary of custom evaluation results
+│   └── ragas_evaluation_results.csv         # RAGAS evaluation results
+│
+├── files/
+│   └── ground_truth_dataset.json   # Manually validated ground truth Q&A dataset
+│
+├── chroma_db/                      # Local ChromaDB vector store
+├── pdfs/                           # Downloaded / cached PDF files
+│
+├── .env                            # Environment variables
+├── .gitignore                      # Files and folders excluded from Git
+├── pipeline.log                    # Pipeline execution logs
+├── requirements.txt                # Main project dependencies
+├── ragas-requirements.txt          # RAGAS evaluation dependencies
+└── README.md                       # Project documentation
+
+```
 
 ## Environment Variables Setup
 
@@ -133,13 +159,23 @@ The system was evaluated using three complementary approaches to ensure both pra
   - Compare generated vs expected answers
   - Measure keyword coverage
 
+- **Results (Final Configuration):**
+  - Top-10 source retrieval accuracy: 81.33%
+  - Average keyword coverage: 60.76%
+  - Average answer similarity: 66.77%
+
+These results indicate that the system is effective at retrieving the correct source paper for most queries. However, answer quality is moderately aligned with the expected answers, as some responses are incomplete or differ in wording from the ground truth.
+
 ## 3.3 RAGAS Evaluation
+
+RAGAS was chosen because it provides a standardized framework for evaluating retrieval-augmented generation systems beyond basic accuracy metrics. It uses the generated answers and retrieved contexts from the ground truth evaluation, along with the reference answers, to evaluate answer correctness, faithfulness, and how effectively the retrieval step supports the final response.
 
 - RAGAS was used for standardized evaluation of:
   - Answer Correctness
   - Faithfulness
   - Context Precision
   - Context Recall
+
 - This evaluates:
   - How well answers are grounded in retrieved context
   - Whether retrieved context is relevant
@@ -181,16 +217,20 @@ The system was evaluated using three complementary approaches to ensure both pra
   - Cosine similarity
 - **Retrieval:**
   - Embedding-based semantic search
-  - Optional hybrid reranking
+  - Query rewriting to improve keyword matching
+  - Dual retrieval using both original and rewritten queries
+  - Cross-encoder reranking to refine relevance
+  - Hybrid reranking (optional, limited impact)
 - **RAG:**
   - Context from top-k chunks
   - Answer generation using gpt-4.1-mini
 - **Evaluation Summary:**
-  - Strong retrieval performance
-  - Optimal k ≈ 5
-  - Hybrid reranking limited impact
-  - NER useful but imperfect
-  - High-quality chunk distribution
+  - Strong retrieval performance (Top-10 accuracy: 81.33%)
+  - Cross-encoder reranking significantly improves relevance
+  - Query rewriting improves retrieval but can introduce slight drift
+  - Hybrid reranking has limited impact due to noisy entity extraction
+  - Retrieval errors mainly occur for ambiguous, source-dependent questions
+  - Answer quality is affected more by retrieval completeness than hallucination
 - **Limitations:**
   - No multi-modal support (tables/images)
   - NER misses domain-specific terms
@@ -201,3 +241,15 @@ The system was evaluated using three complementary approaches to ensure both pra
   - Multi-modal ingestion
   - Feedback loop for answers
   - Improved NER models
+
+## Notes on Generated Files and Ignored Directories
+
+Some folders and files are excluded from version control (see `.gitignore`) because they are generated locally or contain environment-specific data. These will not appear when cloning the repository and must be created during setup or runtime.
+
+- `chroma_db/` – Generated after running the data processing pipeline (vector database)
+- `pdfs/` – Stores downloaded research papers during ingestion
+- `evaluation_results/` – Created after running evaluation scripts (custom + RAGAS results)
+- `.env` – Must be created manually to store API keys and configuration
+- `.venv/`, `.venv-ragas/` – Local virtual environments (created during setup)
+
+Ensure you run the data processing and evaluation notebooks to regenerate these components before using the system.
