@@ -169,7 +169,7 @@ st.title("Enterprise Knowledge Mining")
 with st.sidebar:
     repo_id, hf_token = get_hf_credentials()
     st.header("Query Settings")
-    chroma_path = st.text_input("Chroma path", value="../chroma_db")
+    chroma_path = st.text_input("Chroma path", value="./chroma_db")
     collection_name = st.text_input("Collection", value="research_papers")
     embedding_model = st.text_input("Embedding model", value="text-embedding-3-small")
     rag_model = st.text_input("RAG model", value="gpt-4.1-mini")

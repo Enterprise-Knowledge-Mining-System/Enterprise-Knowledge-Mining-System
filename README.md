@@ -106,7 +106,8 @@ Add a `.env` file in your project root with the following structure:
 # 2. Streamlit App (Query Interface)
 
 - Link: https://enterprise-knowledge-mining-system-enterpr-streamlit-app-qwxgr8.streamlit.app
-- Run locally: `streamlit run streamlit_app.py`
+- Run locally from the repository root: `streamlit run streamlit_app.py`
+- Direct app entry point: `streamlit run app/streamlit_app.py`
 - Features:
   - Ask natural language questions
   - View retrieved chunks
