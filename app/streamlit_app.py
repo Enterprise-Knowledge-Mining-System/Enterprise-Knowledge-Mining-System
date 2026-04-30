@@ -152,6 +152,8 @@ def count_indexed_papers(path: str, collection_name: str, batch_size: int = 5000
 load_streamlit_secrets()
 
 st.title("Enterprise Knowledge Mining")
+if st.session_state.pop("chroma_restored", False):
+    st.success("ChromaDB archive restored. Opening the collection now.")
 
 with st.sidebar:
     repo_id, hf_token = get_hf_credentials()
@@ -208,23 +210,24 @@ if repo_id and selected_archive and restore_archive:
     get_chroma_collection.clear()
     get_pipeline.clear()
     count_indexed_papers.clear()
+    restore_messages: list[str] = []
+    restore_log = st.empty()
+
+    def log_restore(message: str) -> None:
+        restore_messages.append(message)
+        restore_log.code("\n".join(restore_messages[-8:]))
+
     with st.spinner("Restoring ChromaDB from Hugging Face..."):
         try:
-            restore_chroma_archive(repo_id, selected_archive, chroma_path, hf_token)
+            restore_chroma_archive(repo_id, selected_archive, chroma_path, hf_token, log=log_restore)
         except Exception as exc:
             st.error(f"Could not restore ChromaDB archive '{selected_archive}' from Hugging Face: {exc}")
             st.stop()
     get_chroma_collection.clear()
     get_pipeline.clear()
     count_indexed_papers.clear()
-    has_queryable_chunks = chroma_collection_has_chunks(chroma_path, collection_name)
-    if not has_queryable_chunks:
-        st.error(
-            f"Restored '{selected_archive}', but collection '{collection_name}' still has no chunks. "
-            "Check that the archive contains the same Chroma collection name."
-        )
-        st.stop()
-    st.success("ChromaDB restored from Hugging Face.")
+    st.session_state.chroma_restored = True
+    st.rerun()
 
 try:
     collection = get_chroma_collection(chroma_path, collection_name)

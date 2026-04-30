@@ -7,7 +7,7 @@ import tarfile
 import tempfile
 import zipfile
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 import pandas as pd
 from huggingface_hub import hf_hub_download, list_repo_files
@@ -62,19 +62,63 @@ def _is_chroma_root(path: Path) -> bool:
     return path.is_dir() and (path / "chroma.sqlite3").is_file()
 
 
+def _archive_uncompressed_size(archive_path: Path) -> int | None:
+    lower_name = archive_path.name.lower()
+    if lower_name.endswith(".zip"):
+        with zipfile.ZipFile(archive_path) as archive:
+            return sum(info.file_size for info in archive.infolist())
+    if lower_name.endswith((".tar", ".tar.gz", ".tgz")):
+        with tarfile.open(archive_path) as archive:
+            return sum(member.size for member in archive.getmembers() if member.isfile())
+    return None
+
+
+def _format_bytes(size: int | None) -> str:
+    if size is None:
+        return "unknown"
+    value = float(size)
+    for unit in ("B", "KB", "MB", "GB"):
+        if value < 1024 or unit == "GB":
+            return f"{value:.1f} {unit}"
+        value /= 1024
+    return f"{value:.1f} GB"
+
+
 def restore_chroma_archive(
     repo_id: str,
     filename: str,
     destination: str | Path,
     token: str | None = None,
+    log: Callable[[str], None] | None = None,
 ) -> Path:
+    def emit(message: str) -> None:
+        print(message, flush=True)
+        if log:
+            log(message)
+
+    emit(f"Downloading Chroma archive '{filename}' from Hugging Face.")
     archive_path = download_hf_file(repo_id, filename, token)
     destination = Path(destination)
     destination.parent.mkdir(parents=True, exist_ok=True)
     staging_dir = Path(tempfile.mkdtemp(prefix=f"{destination.name}_restore_"))
+    archive_size = archive_path.stat().st_size
+    uncompressed_size = _archive_uncompressed_size(archive_path)
+    free_space = shutil.disk_usage(destination.parent).free
+    emit(
+        "Archive downloaded: "
+        f"compressed={_format_bytes(archive_size)}, "
+        f"uncompressed={_format_bytes(uncompressed_size)}, "
+        f"free={_format_bytes(free_space)}."
+    )
+    if uncompressed_size and uncompressed_size > free_space * 0.85:
+        raise RuntimeError(
+            "Not enough free disk space to restore the Chroma archive. "
+            f"Need about {_format_bytes(uncompressed_size)}, found {_format_bytes(free_space)}."
+        )
 
     try:
         lower_name = archive_path.name.lower()
+        emit(f"Extracting Chroma archive to temporary directory: {staging_dir}")
         if lower_name.endswith(".zip"):
             with zipfile.ZipFile(archive_path) as archive:
                 archive.extractall(staging_dir)
@@ -84,6 +128,7 @@ def restore_chroma_archive(
         else:
             raise ValueError(f"Unsupported Chroma archive format: {archive_path.name}")
 
+        emit("Locating Chroma database root.")
         candidates = [path for path in staging_dir.rglob("*") if _is_chroma_root(path)]
         if _is_chroma_root(staging_dir):
             source_dir = staging_dir
@@ -92,9 +137,11 @@ def restore_chroma_archive(
         else:
             raise ValueError("Archive does not contain a Chroma database with chroma.sqlite3.")
 
+        emit(f"Moving Chroma database into place: {destination}")
         if destination.exists():
             shutil.rmtree(destination)
         shutil.move(str(source_dir), str(destination))
+        emit("Chroma archive restore completed.")
     finally:
         if staging_dir.exists() and staging_dir != destination:
             shutil.rmtree(staging_dir, ignore_errors=True)
