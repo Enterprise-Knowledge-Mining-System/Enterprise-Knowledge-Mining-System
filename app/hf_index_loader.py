@@ -11,7 +11,7 @@ from typing import Any
 import pandas as pd
 from huggingface_hub import hf_hub_download, list_repo_files
 
-from knowledge_pipeline import METADATA_KEYS, load_dotenv_if_available
+from app.knowledge_pipeline import METADATA_KEYS, load_dotenv_if_available
 
 
 INDEX_EXTENSIONS = (".parquet", ".jsonl", ".json", ".csv")
