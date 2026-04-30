@@ -222,8 +222,7 @@ pdfs/
 
 .idea/
 /chroma_db
-/.streamlit/*
-!/.streamlit/config.toml
+/.streamlit
 
 # RAG evaluation outputs
 rag_evaluation_results.csv

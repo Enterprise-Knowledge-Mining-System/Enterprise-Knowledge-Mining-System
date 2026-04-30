@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import tempfile
 import time
 from pathlib import Path
 
@@ -17,18 +16,6 @@ from app.knowledge_pipeline import KnowledgeMiningPipeline, PipelineConfig, get_
 
 
 DEFAULT_CHROMA_ARCHIVE = "chroma_db.zip"
-
-
-def default_chroma_path() -> str:
-    configured_path = os.getenv("CHROMA_PATH")
-    if configured_path:
-        return configured_path
-
-    local_path = Path("./chroma_db")
-    if (local_path / "chroma.sqlite3").exists():
-        return str(local_path)
-
-    return str(Path(tempfile.gettempdir()) / "enterprise_knowledge_chroma_db")
 
 
 st.set_page_config(
@@ -158,7 +145,7 @@ if st.session_state.pop("chroma_restored", False):
 with st.sidebar:
     repo_id, hf_token = get_hf_credentials()
     st.header("Query Settings")
-    chroma_path = st.text_input("Chroma path", value=default_chroma_path())
+    chroma_path = st.text_input("Chroma path", value="./chroma_db")
     collection_name = st.text_input("Collection", value="research_papers")
     embedding_model = st.text_input("Embedding model", value="text-embedding-3-small")
     rag_model = st.text_input("RAG model", value="gpt-4.1-mini")
@@ -210,16 +197,9 @@ if repo_id and selected_archive and restore_archive:
     get_chroma_collection.clear()
     get_pipeline.clear()
     count_indexed_papers.clear()
-    restore_messages: list[str] = []
-    restore_log = st.empty()
-
-    def log_restore(message: str) -> None:
-        restore_messages.append(message)
-        restore_log.code("\n".join(restore_messages[-8:]))
-
     with st.spinner("Restoring ChromaDB from Hugging Face..."):
         try:
-            restore_chroma_archive(repo_id, selected_archive, chroma_path, hf_token, log=log_restore)
+            restore_chroma_archive(repo_id, selected_archive, chroma_path, hf_token)
         except Exception as exc:
             st.error(f"Could not restore ChromaDB archive '{selected_archive}' from Hugging Face: {exc}")
             st.stop()
