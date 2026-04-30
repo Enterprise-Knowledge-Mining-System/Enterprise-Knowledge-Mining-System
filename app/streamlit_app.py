@@ -8,9 +8,7 @@ import pandas as pd
 import streamlit as st
 
 from app.hf_index_loader import (
-    download_hf_file,
     get_hf_credentials,
-    hydrate_collection_from_hf_index,
     list_hf_files,
     restore_chroma_archive,
 )
@@ -160,8 +158,6 @@ with st.sidebar:
     st.metric("Repository", "Configured" if repo_id else "Missing")
     refresh_hf_files = st.button("Load Hugging Face files", disabled=not repo_id)
 
-    index_files: list[str] = []
-    pdf_files: list[str] = []
     chroma_archives: list[str] = []
     total_hf_files: int | None = None
     hf_error: str | None = None
@@ -176,8 +172,6 @@ with st.sidebar:
     if repo_id and hf_files:
         try:
             total_hf_files = len(hf_files)
-            index_files = [file for file in hf_files if file.lower().endswith((".parquet", ".jsonl", ".json", ".csv"))]
-            pdf_files = [file for file in hf_files if file.lower().endswith(".pdf")]
             chroma_archives = [
                 file
                 for file in hf_files
@@ -188,23 +182,12 @@ with st.sidebar:
 
     if total_hf_files is not None:
         st.metric("HF files", f"{total_hf_files:,}")
-    if pdf_files:
-        st.metric("PDFs", f"{len(pdf_files):,}")
-
-    ingest_count = st.number_input("PDFs to ingest", min_value=1, max_value=max(1, len(pdf_files)), value=min(25, max(1, len(pdf_files))))
-    ingest_offset = st.number_input("Start offset", min_value=0, max_value=max(0, len(pdf_files) - 1), value=0)
-    enrich_entities = st.toggle("Extract entities during ingestion", value=False)
-    reset_before_ingest = st.toggle("Reset collection before ingest", value=False)
-    ingest_pdfs = st.button("Ingest Hugging Face PDFs", disabled=not pdf_files or not get_openai_api_key())
 
     configured_archive = os.getenv("HF_CHROMA_ARCHIVE", DEFAULT_CHROMA_ARCHIVE)
-    archive_options = sorted(set(chroma_archives))
+    archive_options = sorted(set(chroma_archives + [configured_archive]))
     archive_index = archive_options.index(configured_archive) if configured_archive in archive_options else 0
     selected_archive = st.selectbox("Chroma archive", archive_options, index=archive_index) if archive_options else None
     restore_archive = st.button("Restore Chroma archive", disabled=not selected_archive)
-
-    selected_index = st.selectbox("Chunk index file", index_files) if index_files else None
-    sync_from_hf = st.button("Sync Hugging Face index", disabled=not selected_index)
 
 has_queryable_chunks = chroma_collection_has_chunks(chroma_path, collection_name)
 
@@ -231,43 +214,6 @@ except Exception as exc:
     st.error(f"Could not initialize ChromaDB at '{chroma_path}': {exc}")
     st.stop()
 
-if ingest_pdfs and repo_id:
-    if not get_openai_api_key():
-        st.error("Set OPENAI_KEY or OPENAI_API_KEY in Streamlit secrets before ingesting PDFs.")
-        st.stop()
-
-    pipeline = get_pipeline(chroma_path, collection_name, embedding_model, rag_model)
-    selected_pdfs = pdf_files[int(ingest_offset) : int(ingest_offset) + int(ingest_count)]
-    progress = st.progress(0)
-    status = st.empty()
-    total_chunks = 0
-    failed_files: list[str] = []
-
-    for index, filename in enumerate(selected_pdfs, start=1):
-        status.write(f"Ingesting {index:,}/{len(selected_pdfs):,}: {filename}")
-        try:
-            pdf_path = download_hf_file(repo_id, filename, hf_token)
-            total_chunks += pipeline.ingest_pdf_file(
-                pdf_path,
-                enrich_entities=enrich_entities,
-                reset_collection=reset_before_ingest and index == 1,
-            )
-        except Exception:
-            failed_files.append(filename)
-        progress.progress(index / len(selected_pdfs))
-
-    if failed_files:
-        st.warning(f"Ingested {total_chunks:,} chunks. {len(failed_files):,} PDFs failed.")
-    else:
-        st.success(f"Ingested {total_chunks:,} chunks from {len(selected_pdfs):,} PDFs.")
-    count_indexed_papers.clear()
-
-if sync_from_hf and repo_id and selected_index:
-    with st.spinner("Downloading stored chunks and embeddings from Hugging Face..."):
-        synced_count = hydrate_collection_from_hf_index(collection, repo_id, selected_index, hf_token)
-    count_indexed_papers.clear()
-    st.success(f"Synced {synced_count:,} embedded chunks from Hugging Face.")
-
 chunk_count = collection.count()
 paper_count = count_indexed_papers(chroma_path, collection_name)
 last_response_time = st.session_state.get("last_query_response_time")
@@ -285,7 +231,7 @@ if chunk_count == 0:
     st.info(
         "No indexed data is loaded in this deployment yet. "
         "Streamlit Cloud does not include local ignored folders like chroma_db/, "
-        "so restore a Chroma archive or sync a chunk index from Hugging Face."
+        "so restore the Chroma archive from Hugging Face."
     )
 
     setup_col, action_col = st.columns([2, 1])
@@ -295,23 +241,20 @@ if chunk_count == 0:
                 "HF_REPO_ID": "Configured" if repo_id else "Missing",
                 "OPENAI API key": "Configured" if get_openai_api_key() else "Missing",
                 "Chroma archive": selected_archive or "Not found",
-                "Chunk index": selected_index or "Not found",
             }
         )
     with action_col:
         if selected_archive:
             st.caption("Use the sidebar Restore button to load the Chroma archive.")
-        elif selected_index:
-            st.caption("Use the sidebar Sync button to load the chunk index.")
         elif not repo_id:
             st.caption("Add HF_REPO_ID in Streamlit app secrets.")
         else:
-            st.caption("No archive or index file was found in the Hugging Face dataset.")
+            st.caption("No Chroma archive was found in the Hugging Face dataset.")
 
 if hf_error:
     st.error(f"Could not read the Hugging Face dataset: {hf_error}")
-elif repo_id and total_hf_files and not pdf_files and not index_files:
-    st.warning("The Hugging Face dataset is reachable, but no PDFs or chunk index files were found.")
+elif repo_id and total_hf_files and not chroma_archives:
+    st.warning("The Hugging Face dataset is reachable, but no Chroma archive files were found.")
 
 query = st.text_area(
     "Ask a question",
