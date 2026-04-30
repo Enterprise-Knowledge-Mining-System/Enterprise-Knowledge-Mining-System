@@ -21,7 +21,7 @@ DEFAULT_CHROMA_ARCHIVE = "chroma_db.zip"
 st.set_page_config(
     page_title="Enterprise Knowledge Mining",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 
