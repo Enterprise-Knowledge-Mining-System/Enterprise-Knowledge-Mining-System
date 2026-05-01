@@ -254,3 +254,7 @@ Some folders and files are excluded from version control (see `.gitignore`) beca
 - `.venv/`, `.venv-ragas/` – Local virtual environments (created during setup)
 
 Ensure you run the data processing and evaluation notebooks to regenerate these components before using the system.
+
+## AI Tools used
+
+AI tools such as GitHub Copilot and ChatGPT were used to support the development of this project. These tools assisted with code suggestions, debugging, and refining system design. All generated outputs were reviewed, tested, and adapted to ensure correctness and alignment with the project requirements.
